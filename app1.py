@@ -1,22 +1,26 @@
 
 # INSURANCE COST PREDICTION
 # Linear Regression + Polynomial Regression
-# Optimized Streamlit Version
-
+# Streamlit + Seaborn EDA
 
 import streamlit as st
 import pandas as pd
 import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.metrics import (
+    mean_absolute_error,
+    mean_squared_error,
+    r2_score
+)
 
-
-
+# ============================================
 # 1. PAGE CONFIGURATION
-
+# ============================================
 
 st.set_page_config(
     page_title="Insurance Cost Prediction",
@@ -30,29 +34,293 @@ st.write(
     "Linear Regression and Polynomial Regression."
 )
 
-
-
+# ============================================
 # 2. LOAD DATASET
-
+# ============================================
 
 @st.cache_data
 def load_data():
-
     df = pd.read_csv("insurance.csv")
-
     return df
-
 
 df = load_data()
 
+# ============================================
+# 3. SEABORN EDA FEATURE
+# ============================================
 
+st.divider()
+st.subheader("📊 Exploratory Data Analysis (EDA)")
 
-# 3. DATA PREPROCESSING
+st.write(
+    "Explore the insurance dataset using "
+    "interactive Seaborn visualizations."
+)
 
+eda_option = st.selectbox(
+    "Select a Seaborn Graph",
+    [
+        "View Dataset",
+        "Age Distribution",
+        "BMI Distribution",
+        "Insurance Charges Distribution",
+        "Gender Count",
+        "Smoker Count",
+        "Region Count",
+        "Age vs Charges",
+        "BMI vs Charges",
+        "Average Charges by Smoker",
+        "Average Charges by Gender",
+        "Average Charges by Region",
+        "Correlation Heatmap"
+    ]
+)
+
+if eda_option == "View Dataset":
+    st.write("Dataset Preview")
+    st.dataframe(df, use_container_width=True)
+
+    st.write("Dataset Shape:", df.shape)
+
+    st.write("Missing Values")
+    st.dataframe(df.isnull().sum().rename("Missing Values"))
+
+    st.write("Statistical Summary")
+    st.dataframe(df.describe(), use_container_width=True)
+
+elif eda_option == "Age Distribution":
+    fig, ax = plt.subplots(figsize=(8, 4))
+
+    sns.histplot(
+        data=df,
+        x="age",
+        bins=15,
+        kde=True,
+        ax=ax
+    )
+
+    ax.set_title("Age Distribution")
+    ax.set_xlabel("Age")
+    ax.set_ylabel("Frequency")
+
+    st.pyplot(fig)
+    plt.close(fig)
+
+elif eda_option == "BMI Distribution":
+    fig, ax = plt.subplots(figsize=(8, 4))
+
+    sns.histplot(
+        data=df,
+        x="bmi",
+        bins=20,
+        kde=True,
+        ax=ax
+    )
+
+    ax.set_title("BMI Distribution")
+    ax.set_xlabel("BMI")
+    ax.set_ylabel("Frequency")
+
+    st.pyplot(fig)
+    plt.close(fig)
+
+elif eda_option == "Insurance Charges Distribution":
+    fig, ax = plt.subplots(figsize=(8, 4))
+
+    sns.histplot(
+        data=df,
+        x="charges",
+        bins=30,
+        kde=True,
+        ax=ax
+    )
+
+    ax.set_title("Insurance Charges Distribution")
+    ax.set_xlabel("Insurance Charges ($)")
+    ax.set_ylabel("Frequency")
+
+    st.pyplot(fig)
+    plt.close(fig)
+
+elif eda_option == "Gender Count":
+    fig, ax = plt.subplots(figsize=(8, 4))
+
+    sns.countplot(
+        data=df,
+        x="sex",
+        ax=ax
+    )
+
+    ax.set_title("Number of Customers by Gender")
+    ax.set_xlabel("Gender")
+    ax.set_ylabel("Count")
+
+    st.pyplot(fig)
+    plt.close(fig)
+
+elif eda_option == "Smoker Count":
+    fig, ax = plt.subplots(figsize=(8, 4))
+
+    sns.countplot(
+        data=df,
+        x="smoker",
+        ax=ax
+    )
+
+    ax.set_title("Smoker vs Non-Smoker Count")
+    ax.set_xlabel("Smoker Status")
+    ax.set_ylabel("Count")
+
+    st.pyplot(fig)
+    plt.close(fig)
+
+elif eda_option == "Region Count":
+    fig, ax = plt.subplots(figsize=(8, 4))
+
+    sns.countplot(
+        data=df,
+        x="region",
+        ax=ax
+    )
+
+    ax.set_title("Customers by Region")
+    ax.set_xlabel("Region")
+    ax.set_ylabel("Count")
+
+    st.pyplot(fig)
+    plt.close(fig)
+
+elif eda_option == "Age vs Charges":
+    fig, ax = plt.subplots(figsize=(8, 4))
+
+    sns.scatterplot(
+        data=df,
+        x="age",
+        y="charges",
+        hue="smoker",
+        ax=ax
+    )
+
+    ax.set_title("Age vs Insurance Charges")
+    ax.set_xlabel("Age")
+    ax.set_ylabel("Charges ($)")
+
+    st.pyplot(fig)
+    plt.close(fig)
+
+elif eda_option == "BMI vs Charges":
+    fig, ax = plt.subplots(figsize=(8, 4))
+
+    sns.scatterplot(
+        data=df,
+        x="bmi",
+        y="charges",
+        hue="smoker",
+        ax=ax
+    )
+
+    ax.set_title("BMI vs Insurance Charges")
+    ax.set_xlabel("BMI")
+    ax.set_ylabel("Charges ($)")
+
+    st.pyplot(fig)
+    plt.close(fig)
+
+elif eda_option == "Average Charges by Smoker":
+    fig, ax = plt.subplots(figsize=(8, 4))
+
+    sns.barplot(
+        data=df,
+        x="smoker",
+        y="charges",
+        errorbar=None,
+        ax=ax
+    )
+
+    ax.set_title("Average Insurance Charges by Smoker")
+    ax.set_xlabel("Smoker Status")
+    ax.set_ylabel("Average Charges ($)")
+
+    st.pyplot(fig)
+    plt.close(fig)
+
+elif eda_option == "Average Charges by Gender":
+    fig, ax = plt.subplots(figsize=(8, 4))
+
+    sns.barplot(
+        data=df,
+        x="sex",
+        y="charges",
+        errorbar=None,
+        ax=ax
+    )
+
+    ax.set_title("Average Insurance Charges by Gender")
+    ax.set_xlabel("Gender")
+    ax.set_ylabel("Average Charges ($)")
+
+    st.pyplot(fig)
+    plt.close(fig)
+
+elif eda_option == "Average Charges by Region":
+    fig, ax = plt.subplots(figsize=(8, 4))
+
+    sns.barplot(
+        data=df,
+        x="region",
+        y="charges",
+        errorbar=None,
+        ax=ax
+    )
+
+    ax.set_title("Average Insurance Charges by Region")
+    ax.set_xlabel("Region")
+    ax.set_ylabel("Average Charges ($)")
+
+    st.pyplot(fig)
+    plt.close(fig)
+
+elif eda_option == "Correlation Heatmap":
+    corr_df = df.copy()
+
+    corr_df["sex"] = corr_df["sex"].map({
+        "male": 0,
+        "female": 1
+    })
+
+    corr_df["smoker"] = corr_df["smoker"].map({
+        "no": 0,
+        "yes": 1
+    })
+
+    corr_df = pd.get_dummies(
+        corr_df,
+        columns=["region"],
+        drop_first=True,
+        dtype=int
+    )
+
+    fig, ax = plt.subplots(figsize=(9, 6))
+
+    sns.heatmap(
+        corr_df.corr(numeric_only=True),
+        annot=True,
+        cmap="coolwarm",
+        fmt=".2f",
+        ax=ax
+    )
+
+    ax.set_title("Feature Correlation Heatmap")
+
+    st.pyplot(fig)
+    plt.close(fig)
+
+# ============================================
+# 4. DATA PREPROCESSING
+# ============================================
 
 @st.cache_data
 def preprocess_data(df):
-
     data = df.copy()
 
     # Convert sex
@@ -76,30 +344,22 @@ def preprocess_data(df):
 
     # Convert boolean columns to integers
     for column in data.columns:
-
         if data[column].dtype == "bool":
             data[column] = data[column].astype(int)
 
-    X = data.drop(
-        "charges",
-        axis=1
-    )
-
+    X = data.drop("charges", axis=1)
     y = data["charges"]
 
     return X, y
 
-
 X, y = preprocess_data(df)
 
-
-
-# 4. TRAIN MODELS ONLY ONCE
-
+# ============================================
+# 5. TRAIN MODELS ONLY ONCE
+# ============================================
 
 @st.cache_resource
 def train_models(X, y):
-
     # Train-test split
     X_train, X_test, y_train, y_test = train_test_split(
         X,
@@ -108,9 +368,7 @@ def train_models(X, y):
         random_state=42
     )
 
-    
     # LINEAR REGRESSION
-    
 
     linear_model = LinearRegression()
 
@@ -140,10 +398,7 @@ def train_models(X, y):
         )
     )
 
-
-    
     # POLYNOMIAL REGRESSION
-    
 
     poly = PolynomialFeatures(
         degree=2
@@ -157,7 +412,6 @@ def train_models(X, y):
         X_test
     )
 
-
     poly_model = LinearRegression()
 
     poly_model.fit(
@@ -168,7 +422,6 @@ def train_models(X, y):
     poly_prediction = poly_model.predict(
         X_test_poly
     )
-
 
     poly_r2 = r2_score(
         y_test,
@@ -187,86 +440,68 @@ def train_models(X, y):
         )
     )
 
-
     return (
         linear_model,
         poly,
         poly_model,
-
         linear_r2,
         linear_mae,
         linear_rmse,
-
         poly_r2,
         poly_mae,
         poly_rmse
     )
-
 
 # Train models once
 (
     linear_model,
     poly,
     poly_model,
-
     linear_r2,
     linear_mae,
     linear_rmse,
-
     poly_r2,
     poly_mae,
     poly_rmse
-
 ) = train_models(X, y)
 
-
-
-# 5. MODEL PERFORMANCE
+# ============================================
+# 6. MODEL PERFORMANCE
+# ============================================
 
 st.divider()
-
 st.subheader("📊 Model Performance")
 
-
 performance = pd.DataFrame({
-
     "Algorithm": [
         "Linear Regression",
         "Polynomial Regression"
     ],
-
     "R² Score": [
         linear_r2,
         poly_r2
     ],
-
     "MAE": [
         linear_mae,
         poly_mae
     ],
-
     "RMSE": [
         linear_rmse,
         poly_rmse
     ]
-
 })
-
 
 st.dataframe(
     performance,
     use_container_width=True
 )
 
-
-
-# 6. USER INPUT
-
+# ============================================
+# 7. USER INPUT
+# ============================================
 
 st.divider()
-
 st.subheader("🔮 Predict Insurance Charges")
-
 
 # Age
 age = st.number_input(
@@ -277,13 +512,11 @@ age = st.number_input(
     step=1
 )
 
-
 # Sex
 sex = st.selectbox(
     "Sex",
     ["male", "female"]
 )
-
 
 # BMI
 bmi = st.number_input(
@@ -294,7 +527,6 @@ bmi = st.number_input(
     step=0.1
 )
 
-
 # Children
 children = st.number_input(
     "Number of Children",
@@ -304,13 +536,11 @@ children = st.number_input(
     step=1
 )
 
-
 # Smoker
 smoker = st.selectbox(
     "Smoker",
     ["no", "yes"]
 )
-
 
 # Region
 region = st.selectbox(
@@ -323,7 +553,6 @@ region = st.selectbox(
     ]
 )
 
-
 # Algorithm
 algorithm = st.selectbox(
     "Select Algorithm",
@@ -332,69 +561,40 @@ algorithm = st.selectbox(
         "Polynomial Regression"
     ]
 )
-# 7. PREDICTION BUTTON
 
+# ============================================
+# 8. PREDICTION BUTTON
+# ============================================
 
 if st.button(
     "🚀 Predict Insurance Charges",
     use_container_width=True
 ):
-
-    
     # Convert user input
-    
-
     user_data = {
-
         "age": age,
-
-        "sex": (
-            0
-            if sex == "male"
-            else 1
-        ),
-
+        "sex": 0 if sex == "male" else 1,
         "bmi": bmi,
-
         "children": children,
-
-        "smoker": (
-            0
-            if smoker == "no"
-            else 1
-        )
+        "smoker": 0 if smoker == "no" else 1
     }
 
-
-    
     # Region encoding
-    
-
     for column in X.columns:
-
         if column.startswith("region_"):
-
             region_name = column.replace(
                 "region_",
                 ""
             )
 
-            if region == region_name:
+            user_data[column] = int(
+                region == region_name
+            )
 
-                user_data[column] = 1
-
-            else:
-
-                user_data[column] = 0
-
-
-    
     # Create input DataFrame
-
     user_input = pd.DataFrame(
         [user_data]
     )
-
 
     # Ensure same column order
     user_input = user_input.reindex(
@@ -402,18 +602,12 @@ if st.button(
         fill_value=0
     )
 
-
-    
     # PREDICTION
-
     if algorithm == "Linear Regression":
-
         prediction = linear_model.predict(
             user_input
         )[0]
-
     else:
-
         user_input_poly = poly.transform(
             user_input
         )
@@ -422,10 +616,7 @@ if st.button(
             user_input_poly
         )[0]
 
-
-
     # DISPLAY RESULT
-
     st.success(
         f"💰 Predicted Insurance Charges: "
         f"${prediction:,.2f}"
@@ -435,12 +626,11 @@ if st.button(
         f"Algorithm Used: {algorithm}"
     )
 
-
-
-# 8. PROJECT INFORMATION
+# ============================================
+# 9. PROJECT INFORMATION
+# ============================================
 
 st.divider()
-
 st.subheader("📌 Project Information")
 
 st.write("""
@@ -465,5 +655,9 @@ st.write("""
 - R² Score
 - MAE
 - RMSE
+
+**EDA Libraries:**
+- Seaborn
+- Matplotlib
 """)
 
